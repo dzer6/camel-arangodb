@@ -23,10 +23,6 @@ public class ArangoDbEndpoint extends DefaultEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArangoDbEndpoint.class);
     
-    private static final String DEFAULT_HOST = "localhost";
-    
-    private static final int DEFAULT_PORT = 8529;
-    
     /** Name of configuration bean. */
     @UriPath
     private String configBean;
@@ -41,11 +37,11 @@ public class ArangoDbEndpoint extends DefaultEndpoint {
     
     /** Hostname of ArangoDB. */
     @UriParam
-    private final String host = DEFAULT_HOST;
+    private String host;
     
     /** Port of ArangoDB. */
     @UriParam
-    private final int port = DEFAULT_PORT;
+    private int port;
     
     /** Operation to execute. */
     @UriParam
@@ -65,17 +61,17 @@ public class ArangoDbEndpoint extends DefaultEndpoint {
     public ArangoDbEndpoint() {
     }
 
-    public ArangoDbEndpoint(String uri, ArangoDbComponent component) {
+    public ArangoDbEndpoint(final String uri, final ArangoDbComponent component) {
         super(uri, component);
     }
 
     @Override
-    public Producer createProducer() throws Exception {
+    public Producer createProducer() {
         return new ArangoDbProducer(this);
     }
 
     @Override
-    public Consumer createConsumer(Processor processor) throws Exception {
+    public Consumer createConsumer(final Processor processor) {
         throw new UnsupportedOperationException("Cannot consume from an ArangoDbEndpoint: " + getEndpointUri());
     }
 
@@ -88,6 +84,7 @@ public class ArangoDbEndpoint extends DefaultEndpoint {
     protected void doStart() throws Exception {
         super.doStart();
 
+        // looks like never true
         if (configure == null) {
             mustShutdown = true;
             configure = new ArangoConfigure();
@@ -103,7 +100,7 @@ public class ArangoDbEndpoint extends DefaultEndpoint {
     }
 
     @Override
-    protected void doStop() throws Exception {
+    protected void doStop() {
         if (mustShutdown && configure != null) {
             configure.shutdown();
         }
@@ -153,8 +150,16 @@ public class ArangoDbEndpoint extends DefaultEndpoint {
         return host;
     }
 
+    public void setHost(String host) {
+        this.host = host;
+    }
+
     public int getPort() {
         return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public String getOperation() {

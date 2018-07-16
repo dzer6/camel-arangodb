@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
 import com.arangodb.CursorResult;
-import com.arangodb.DocumentCursor;
 import com.arangodb.entity.BaseDocument;
 import com.arangodb.entity.DocumentEntity;
 
@@ -25,14 +24,14 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
     
     private final ArangoDriver driver;
 
-    public ArangoDbProducer(ArangoDbEndpoint endpoint) {
+    public ArangoDbProducer(final ArangoDbEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
         this.driver = endpoint.getDriver();
     }
 
     @Override
-    public void process(Exchange exchange) throws Exception {
+    public void process(final Exchange exchange) throws Exception {
         
         final String operation = getOperation(exchange);
         
@@ -58,7 +57,7 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
         }
     }
     
-    private String getOperation(Exchange exchange) throws CamelArangoDbException {
+    private String getOperation(final Exchange exchange) throws CamelArangoDbException {
         String operation = endpoint.getOperation();
         
         if (operation == null) {
@@ -72,7 +71,7 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
         return operation;
     }
     
-    private String getCollection(Exchange exchange) throws CamelArangoDbException {
+    private String getCollection(final Exchange exchange) throws CamelArangoDbException {
         String collection = endpoint.getCollection();
         
         if (collection == null) {
@@ -86,7 +85,7 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
         return collection;
     }
     
-    private String getQuery(Exchange exchange) throws CamelArangoDbException {
+    private String getQuery(final Exchange exchange) throws CamelArangoDbException {
         String aqlQuery = endpoint.getAql();
         
         if (aqlQuery == null) {
@@ -107,7 +106,7 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
      * @throws ArangoException Thrown if problem with the database
      * @throws CamelArangoDbException Thrown if problem the data provided in exchange
      */
-    private void doInsertDoc(Exchange exchange) throws ArangoException, CamelArangoDbException {
+    private void doInsertDoc(final Exchange exchange) throws ArangoException, CamelArangoDbException {
         final Object obj = exchange.getIn().getBody();
         final DocumentEntity<?> doc = driver.createDocument(getCollection(exchange), obj);
         exchange.getOut().setBody(doc);
@@ -120,7 +119,7 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
      * @throws ArangoException Thrown if problem with the database
      * @throws CamelArangoDbException Thrown if problem the data provided in exchange
      */
-    private void doUpdateDoc(Exchange exchange) throws ArangoException, CamelArangoDbException {
+    private void doUpdateDoc(final Exchange exchange) throws ArangoException, CamelArangoDbException {
         final BaseDocument newdoc = exchange.getIn().getBody(BaseDocument.class);
         final DocumentEntity<?> doc = driver.updateDocument(getCollection(exchange), newdoc.getDocumentKey(), newdoc);
         exchange.getOut().setBody(doc.getEntity());
@@ -133,7 +132,7 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
      * @throws ArangoException Thrown if problem with the database
      * @throws CamelArangoDbException Thrown if problem the data provided in exchange
      */
-    private void doGetDoc(Exchange exchange) throws ArangoException, CamelArangoDbException {
+    private void doGetDoc(final Exchange exchange) throws ArangoException, CamelArangoDbException {
         final String key = exchange.getIn().getBody(String.class);
         BaseDocument doc = null;
         
@@ -161,8 +160,8 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
      * @throws ArangoException Thrown if problem with the database
      * @throws CamelArangoDbException Thrown if problem the data provided in exchange
      */
-    private void doDeleteDoc(Exchange exchange) throws ArangoException, CamelArangoDbException {
-        DocumentEntity<?> doc = null;
+    private void doDeleteDoc(final Exchange exchange) throws ArangoException, CamelArangoDbException {
+        DocumentEntity<?> doc;
         final String documentKey = exchange.getIn().getBody(String.class);
         if (documentKey != null) {
             doc = driver.deleteDocument(getCollection(exchange), documentKey);
@@ -180,11 +179,11 @@ public class ArangoDbProducer extends DefaultProducer implements ArangoDbConstan
      * @throws ArangoException Thrown if problem with the database
      * @throws CamelArangoDbException Thrown if problem the data provided in exchange
      */
-    private void doQuery(Exchange exchange) throws ArangoException, CamelArangoDbException {
+    private void doQuery(final Exchange exchange) throws ArangoException, CamelArangoDbException {
         final String query = getQuery(exchange);
-        final Map<String, Object> bindVars = exchange.getIn().getHeader(ARANGO_AQL_QUERY_VARS_HEADER, Map.class);
+        final Map bindVars = exchange.getIn().getHeader(ARANGO_AQL_QUERY_VARS_HEADER, Map.class);
         
-        final CursorResult<BaseDocument> cursor = driver.executeAqlQuery(query, bindVars, null, BaseDocument.class);
+        final CursorResult cursor = driver.executeAqlQuery(query, bindVars, null, BaseDocument.class);
         exchange.getOut().setBody(cursor != null ? cursor.iterator() : null);
     }
 

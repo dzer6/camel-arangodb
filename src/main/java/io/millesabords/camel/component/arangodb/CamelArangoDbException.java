@@ -4,15 +4,15 @@ public class CamelArangoDbException extends Exception {
 
     private static final long serialVersionUID = 5347431428477121661L;
 
-    public CamelArangoDbException(String message, Throwable cause) {
+    public CamelArangoDbException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public CamelArangoDbException(String message) {
+    public CamelArangoDbException(final String message) {
         super(message);
     }
 
-    public CamelArangoDbException(Throwable cause) {
+    public CamelArangoDbException(final Throwable cause) {
         super(cause);
     }
 

@@ -23,12 +23,12 @@ public class ArangoDbComponent extends UriEndpointComponent {
         super(ArangoDbEndpoint.class);
     }
 
-    public ArangoDbComponent(CamelContext context) {
+    public ArangoDbComponent(final CamelContext context) {
         super(context, ArangoDbEndpoint.class);
     }
 
     @Override
-    protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
+    protected Endpoint createEndpoint(final String uri, final String remaining, final Map<String, Object> parameters) throws Exception {
         
         ArangoConfigure config = null;
         
